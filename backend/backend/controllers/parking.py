@@ -1,3 +1,4 @@
+import dataclasses
 import json
 
 from flask import Blueprint, Response, request
@@ -9,9 +10,33 @@ from backend.models.parkingerrs import (
     VehicleNotExistsError,
 )
 
+
+class EnhancedJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if dataclasses.is_dataclass(o):
+            return dataclasses.asdict(o)
+        return super().default(o)
+
+
 parking = Blueprint("parking", __name__)
 
 parking_system = None
+
+
+@parking.route("/init", methods=(["POST"]))
+def init_parking():
+    global parking_system
+    if parking_system is not None:
+        # Already initialized
+        return Response(response="System already initialized", status=400)
+
+    body = request.get_json()
+    entry_points = body["entry_points"]
+    slots = [tuple(slot) for slot in body["slots"]]
+    sizes = body["sizes"]
+    parking_system = ParkingSystem(entry_points, slots, sizes)
+
+    return Response(response="System initialized", status=201)
 
 
 @parking.route("/", methods=(["GET"]))
@@ -25,26 +50,10 @@ def get_slots():
 
     data = dict(slots=slots)
     return Response(
-        response=json.dumps(data),
+        response=json.dumps(data, cls=EnhancedJSONEncoder),
         status=200,
         mimetype="application/json",
     )
-
-
-@parking.route("/init", methods=(["POST"]))
-def init_parking():
-    global parking_system
-    if parking_system is not None:
-        # Already initialized
-        return Response(response="Already initialized", status=200)
-
-    body = request.get_json()
-    entry_points = body["entry_points"]
-    slots = [tuple(slot) for slot in body["slots"]]
-    sizes = body["sizes"]
-    parking_system = ParkingSystem(entry_points, slots, sizes)
-
-    return Response(response="System initialized", status=201)
 
 
 @parking.route("/park", methods=(["POST"]))
@@ -71,7 +80,7 @@ def park():
 
     data = dict(location=location)
     return Response(
-        response=json.dumps(data),
+        response=json.dumps(data, cls=EnhancedJSONEncoder),
         status=200,
         mimetype="application/json",
     )
@@ -99,7 +108,7 @@ def unpark():
 
     data = dict(charge=charge)
     return Response(
-        response=json.dumps(data),
+        response=json.dumps(data, cls=EnhancedJSONEncoder),
         status=200,
         mimetype="application/json",
     )
