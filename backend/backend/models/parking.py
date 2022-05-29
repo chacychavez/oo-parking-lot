@@ -105,7 +105,7 @@ class ParkingSystem:
 
         slot = self.get_nearest_slot(vehicle.size, entry_point)
         if slot is None:
-            raise NoSlotAvailableError("No slot available.")
+            raise NoSlotAvailableError("No slots available.")
 
         vehicle.add_log(
             ParkingLog(time_parked=time_parked, slot_location=slot.location)
