@@ -91,7 +91,7 @@ class ParkingSystem:
             if saved_vehicle.is_parked:
                 raise AlreadyParkedError("Vehicle already parked.")
             current_log = saved_vehicle.parking_logs[-1]
-            if current_log.time_unparked - time_parked < self.HOURS_IN_SEC:
+            if time_parked - current_log.time_unparked < self.HOURS_IN_SEC:
                 vehicle = saved_vehicle
 
         slot = self.get_nearest_slot(vehicle.size, entry_point)
