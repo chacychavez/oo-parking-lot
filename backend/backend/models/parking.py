@@ -81,10 +81,10 @@ class ParkingSystem:
         return self._vehicles.get(plate_number)
 
     def get_nearest_slot(self, size, entry_point: int) -> Optional[Slot]:
-        vacant_slot = filter(
+        vacant_slots = filter(
             lambda slot: slot.is_vacant and slot.size >= size, self._slots.values()
         )
-        sorted_slots = sorted(vacant_slot, key=lambda item: item.location[entry_point])
+        sorted_slots = sorted(vacant_slots, key=lambda item: item.location[entry_point])
         if not sorted_slots:
             return None
         return sorted_slots[0]
@@ -92,11 +92,13 @@ class ParkingSystem:
     def park(self, vehicle: Vehicle, entry_point: int) -> Optional[SlotLocation]:
         if entry_point not in range(self._entry_points):
             raise InvalidEntryPointError("Invalid entry point.")
+
         time_parked = time.time()
         saved_vehicle = self._vehicles.get(vehicle.plate_number)
         if saved_vehicle:
             if saved_vehicle.is_parked:
                 raise AlreadyParkedError("Vehicle already parked.")
+            # Check for continuous rate parking
             current_log = saved_vehicle.parking_logs[-1]
             if time_parked - current_log.time_unparked < self.HOURS_IN_SEC:
                 vehicle = saved_vehicle
@@ -109,6 +111,7 @@ class ParkingSystem:
             ParkingLog(time_parked=time_parked, slot_location=slot.location)
         )
 
+        # Set attributes after parking
         vehicle.is_parked = True
         slot.is_vacant = False
 
@@ -129,6 +132,7 @@ class ParkingSystem:
 
         charge = self._get_charge(vehicle.parking_logs)
 
+        # Set attributes after unparking
         current_log.charge = charge
         vehicle.is_parked = False
         slot.is_vacant = True
@@ -143,6 +147,7 @@ class ParkingSystem:
         paid_charge = 0
         for i in range(len(logs)):
             current_log = logs[i]
+            # Use for continuous rate conditions
             prev_total_hours_consumed = total_hours_consumed
 
             hours_consumed = (current_log.time_unparked - current_start_time) / (
@@ -159,17 +164,25 @@ class ParkingSystem:
             if total_hours_consumed <= 3:
                 total_charge = 40
             elif 3 < total_hours_consumed < 24 and prev_total_hours_consumed < 3:
+                # Compute continous rate charge from flat charge
                 total_charge = 40 + ((total_hours_consumed - 3) * hour_rate)
             elif (
                 total_hours_consumed >= 24 and prev_total_hours_consumed < 24
             ) or hours_consumed > 24 - (prev_total_hours_consumed % 24):
+                # Compute charge for daily rate
+                # Case #1: hours_consumed > 24
+                # Case #2: prev_hours_consumed == 40, current hours_consumed == 10
+                # -> total of 50 hours;
                 total_charge = (5000 * (total_hours_consumed // 24)) + (
                     hour_rate * (total_hours_consumed % 24)
                 )
             else:
+                # Add hourly rate charge to the total_charge
                 total_charge += hours_consumed_ceiled * hour_rate
 
             # Remaining time computation
+            # Since we round up the hours_consumed, we need to get what hour the next
+            # charge be given.
             remaining_time = (hours_consumed_ceiled - hours_consumed) * (
                 self.HOURS_IN_SEC
             )
