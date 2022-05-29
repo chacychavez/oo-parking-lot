@@ -4,7 +4,7 @@ import json
 
 from flask import Blueprint, Response, request
 
-from backend.models.parking import ParkingSystem, Vehicle
+from backend.models.parking import ParkingSystem, Size, Vehicle
 from backend.models.parkingerrs import (
     AlreadyParkedError,
     InvalidEntryPointError,
@@ -95,6 +95,9 @@ def park():
     plate_number = body["plate_number"]
     size = body["size"]
     entry_point = body["entry_point"]
+
+    if size not in {*Size}:
+        return Response(response="Invalid vehicle size", status=400)
     vehicle = Vehicle(plate_number, size)
 
     time_parked = body.get("time_parked")

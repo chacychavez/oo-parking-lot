@@ -62,7 +62,7 @@ class ParkingSystem:
         # Initialize slots
         for i in range(len(slots)):
             if sizes[i] not in {*Size}:
-                raise InvalidSizeError("Invalid size")
+                raise InvalidSizeError("Invalid slot size")
             self._slots[slots[i]] = Slot(slots[i], sizes[i])
 
     def get_slots(self) -> List[Slot]:
