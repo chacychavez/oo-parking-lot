@@ -6,6 +6,7 @@ from flask import Blueprint, Response, request
 from backend.models.parking import ParkingSystem, Vehicle
 from backend.models.parkingerrs import (
     AlreadyParkedError,
+    InvalidEntryPointError,
     NoSlotAvailableError,
     VehicleNotExistsError,
 )
@@ -68,12 +69,15 @@ def park():
     entry_point = body["entry_point"]
     vehicle = Vehicle(plate_number, size)
 
+    error = None
     try:
         location = parking_system.park(vehicle, entry_point)
-    except AlreadyParkedError as err:
+    except (AlreadyParkedError, InvalidEntryPointError) as err:
         error = dict(response=err.message, status=400)
     except NoSlotAvailableError as err:
         error = dict(response=err.message, status=503)
+    except Exception as exc:
+        error = dict(response=str(exc), status=500)
 
     if error:
         return Response(**error)
@@ -97,11 +101,11 @@ def unpark():
 
     error = None
     try:
-        charge = parking_system.unpark(location)
+        charge = parking_system.unpark(plate_number)
     except VehicleNotExistsError as err:
         error = dict(response=err.message, status=400)
     except Exception as exc:
-        error = dict(response=exc.message, status=500)
+        error = dict(response=str(exc), status=500)
 
     if error:
         return Response(**error)
