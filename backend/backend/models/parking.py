@@ -4,7 +4,12 @@ from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import List, Optional
 
-from .parkingerrs import AlreadyParkedError, NoSlotAvailableError, VehicleNotExistsError
+from .parkingerrs import (
+    AlreadyParkedError,
+    InvalidEntryPointError,
+    NoSlotAvailableError,
+    VehicleNotExistsError,
+)
 
 
 class SlotSize(IntEnum):
@@ -85,6 +90,8 @@ class ParkingSystem:
         return sorted_slots[0]
 
     def park(self, vehicle: Vehicle, entry_point: int) -> Optional[SlotLocation]:
+        if entry_point not in range(self._entry_points):
+            raise InvalidEntryPointError("Invalid entry point.")
         time_parked = time.time()
         saved_vehicle = self._vehicles.get(vehicle.plate_number)
         if saved_vehicle:

@@ -1,5 +1,6 @@
 class ParkingError(Exception):
-    pass
+    def __init__(self, message):
+        self.message = message
 
 
 class NoSlotAvailableError(ParkingError):
@@ -11,4 +12,8 @@ class AlreadyParkedError(ParkingError):
 
 
 class VehicleNotExistsError(ParkingError):
+    pass
+
+
+class InvalidEntryPointError(ParkingError):
     pass
