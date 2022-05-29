@@ -2,7 +2,7 @@ import math
 import time
 from dataclasses import dataclass, field
 from enum import IntEnum
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from .parkingerrs import (
     AlreadyParkedError,
@@ -65,8 +65,10 @@ class ParkingSystem:
                 raise InvalidSizeError("Invalid slot size")
             self._slots[slots[i]] = Slot(slots[i], sizes[i])
 
-    def add_entry_points(self, entry_points: int, new_slots: List[Slot]) -> None:
+    def add_entry_points(self: int, updates: Dict[str, tuple]) -> None:
         # TODO: Implement adding entry points and updating slots
+        # Update self._slots keys -- use uuid4
+        # updates -> { slot_id: new_location }
         pass
 
     def get_slots(self) -> List[Slot]:

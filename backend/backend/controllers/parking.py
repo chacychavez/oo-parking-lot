@@ -52,6 +52,11 @@ def init_parking():
     return Response(response="System initialized", status=201)
 
 
+@parking.route("/slots/update", methods=(["POST"]))
+def add_entry_points():
+    return Response(response="Method not implemented yet", status=501)
+
+
 @parking.route("/", methods=(["GET"]))
 @parking.route("/slots", methods=(["GET"]))
 def get_slots():
