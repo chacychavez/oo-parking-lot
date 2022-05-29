@@ -47,7 +47,13 @@ def test_get_slots(client):
 
 def test_park(client):
     response = client.post(
-        "parking/park", json={"plate_number": "ABC-123", "size": 0, "entry_point": 0}
+        "parking/park",
+        json={
+            "plate_number": "ABC-123",
+            "size": 0,
+            "entry_point": 0,
+            "time_parked": [2022, 5, 29, 0, 0],
+        },
     )
 
     data = json.loads(response.data.decode())
@@ -82,10 +88,13 @@ def test_invalid_entry_point_error(client):
 
 
 def test_unpark(client):
-    response = client.post("parking/unpark", json={"plate_number": "ABC-123"})
+    response = client.post(
+        "parking/unpark",
+        json={"plate_number": "ABC-123", "time_unparked": [2022, 5, 29, 20, 30]},
+    )
 
     data = json.loads(response.data.decode())
-    assert data["charge"] == 40
+    assert data["charge"] == 400
 
 
 def test_unpark_error(client):

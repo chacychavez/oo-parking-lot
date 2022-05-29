@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 
 from backend.models.parking import ParkingLog, ParkingSystem, Size, Vehicle
@@ -69,10 +71,12 @@ def test_unpark():
 
     plate_number = "ABC-123"
     vehicle = Vehicle(plate_number, Size.SMALL)
-    location = parking_system.park(vehicle, 0)
+    time_parked = datetime.datetime(2022, 5, 29, 0, 0).timestamp()
+    location = parking_system.park(vehicle, 0, time_parked)
 
-    charge = parking_system.unpark(plate_number)
-    assert charge == 40
+    time_unparked = datetime.datetime(2022, 5, 29, 20, 30).timestamp()
+    charge = parking_system.unpark(plate_number, time_unparked)
+    assert charge == 1120
 
     slot = parking_system.get_slot(location)
     assert slot.is_vacant
@@ -81,7 +85,7 @@ def test_unpark():
     assert not vehicle.is_parked
 
     assert vehicle.parking_logs
-    assert vehicle.parking_logs[0].charge == 40
+    assert vehicle.parking_logs[0].charge == 1120
 
 
 def test_unpark_missing():
