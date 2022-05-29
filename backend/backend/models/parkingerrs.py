@@ -17,3 +17,7 @@ class VehicleNotExistsError(ParkingError):
 
 class InvalidEntryPointError(ParkingError):
     pass
+
+
+class InvalidSizeError(ParkingError):
+    pass

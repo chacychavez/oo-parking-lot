@@ -7,6 +7,7 @@ from typing import List, Optional
 from .parkingerrs import (
     AlreadyParkedError,
     InvalidEntryPointError,
+    InvalidSizeError,
     NoSlotAvailableError,
     VehicleNotExistsError,
 )
@@ -60,6 +61,8 @@ class ParkingSystem:
 
         # Initialize slots
         for i in range(len(slots)):
+            if sizes[i] not in {*Size}:
+                raise InvalidSizeError("Invalid size")
             self._slots[slots[i]] = Slot(slots[i], sizes[i])
 
     def get_slots(self) -> List[Slot]:

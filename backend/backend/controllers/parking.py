@@ -8,6 +8,7 @@ from backend.models.parking import ParkingSystem, Vehicle
 from backend.models.parkingerrs import (
     AlreadyParkedError,
     InvalidEntryPointError,
+    InvalidSizeError,
     NoSlotAvailableError,
     VehicleNotExistsError,
 )
@@ -36,7 +37,17 @@ def init_parking():
     entry_points = body["entry_points"]
     slots = [tuple(slot) for slot in body["slots"]]
     sizes = body["sizes"]
-    parking_system = ParkingSystem(entry_points, slots, sizes)
+
+    error = None
+    try:
+        parking_system = ParkingSystem(entry_points, slots, sizes)
+    except InvalidSizeError as err:
+        error = dict(response=err.message, status=400)
+    except Exception as exc:
+        error = dict(response=str(exc), status=500)
+
+    if error:
+        return Response(**error)
 
     return Response(response="System initialized", status=201)
 
