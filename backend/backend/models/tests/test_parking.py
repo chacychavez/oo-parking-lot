@@ -92,6 +92,43 @@ def test_unpark_missing():
         parking_system.unpark(plate_number)
 
 
+def test_continuous_rate():
+    parking_system = ParkingSystem(entry_points, slots, sizes)
+
+    plate_number = "ABC-123"
+    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    parking_system.park(vehicle, 0)
+    parking_system.unpark(plate_number)
+
+    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    parking_system.park(vehicle, 1)
+
+    saved_vehicle = parking_system.get_vehicle(plate_number)
+    assert len(saved_vehicle.parking_logs) == 2
+
+
+def test_not_continuous_rate():
+    # Use park and unpark but override time_unpark and unparked
+    parking_system = ParkingSystem(entry_points, slots, sizes)
+
+    plate_number = "ABC-123"
+    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    parking_system.park(vehicle, 0)
+    parking_system.unpark(plate_number)
+
+    saved_vehicle = parking_system.get_vehicle(plate_number)
+    current_log = saved_vehicle.parking_logs[-1]
+    current_log.time_parked -= ParkingSystem.HOURS_IN_SEC
+    current_log.time_unparked -= ParkingSystem.HOURS_IN_SEC
+
+    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    parking_system.park(vehicle, 1)
+
+    # Retrived again to make sure we get the latest saved_vehicle
+    saved_vehicle = parking_system.get_vehicle(plate_number)
+    assert len(saved_vehicle.parking_logs) == 1
+
+
 def test_basic_flat_rate():
     parking_system = ParkingSystem(entry_points, slots, sizes)
 
