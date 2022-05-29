@@ -69,7 +69,7 @@ class ParkingSystem:
         return self._slots.get(slot_location)
 
     def get_vehicles(self) -> List[Vehicle]:
-        return list(self._vehicles.values)
+        return list(self._vehicles.values())
 
     def get_vehicle(self, plate_number: str) -> Vehicle:
         return self._vehicles.get(plate_number)

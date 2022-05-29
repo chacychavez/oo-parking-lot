@@ -58,6 +58,22 @@ def get_slots():
     )
 
 
+@parking.route("/vehicles", methods=(["GET"]))
+def get_vehicles():
+    if parking_system is None:
+        # Not initialized
+        return Response(response="System not initialized", status=405)
+
+    vehicles = parking_system.get_vehicles()
+
+    data = dict(vehicles=vehicles)
+    return Response(
+        response=json.dumps(data, cls=EnhancedJSONEncoder),
+        status=200,
+        mimetype="application/json",
+    )
+
+
 @parking.route("/park", methods=(["POST"]))
 def park():
     if parking_system is None:

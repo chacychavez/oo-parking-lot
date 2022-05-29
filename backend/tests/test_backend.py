@@ -60,6 +60,13 @@ def test_park(client):
     assert data["location"] == [1, 2, 3]
 
 
+def test_get_vehicles(client):
+    response = client.get("/parking/vehicles")
+
+    data = json.loads(response.data.decode())
+    assert len(data["vehicles"]) == 1
+
+
 def test_alread_parked_error(client):
     response = client.post(
         "parking/park", json={"plate_number": "ABC-123", "size": 0, "entry_point": 0}
