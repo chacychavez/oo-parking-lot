@@ -139,8 +139,8 @@ def test_basic_flat_rate():
     # Use ParkingSystem._get_charge directly to properly test rates
     parking_logs = [
         ParkingLog(
-            time_parked=0,
-            time_unparked=ParkingSystem.HOURS_IN_SEC * 2.5,
+            time_parked=datetime.datetime(2022, 5, 29, 1, 0).timestamp(),
+            time_unparked=datetime.datetime(2022, 5, 29, 3, 30).timestamp(),
             slot_location=(1, 2, 3),
         )
     ]
@@ -155,8 +155,8 @@ def test_basic_hour_rates():
     # Use ParkingSystem._get_charge directly to properly test rates
     parking_logs = [
         ParkingLog(
-            time_parked=0,
-            time_unparked=ParkingSystem.HOURS_IN_SEC * 13.5,
+            time_parked=datetime.datetime(2022, 5, 29, 0, 0).timestamp(),
+            time_unparked=datetime.datetime(2022, 5, 29, 13, 30).timestamp(),
             slot_location=(1, 2, 3),
         )
     ]
@@ -174,8 +174,8 @@ def test_basic_day_rates():
     # Use ParkingSystem._get_charge directly to properly test rates
     parking_logs = [
         ParkingLog(
-            time_parked=0,
-            time_unparked=ParkingSystem.HOURS_IN_SEC * 54.1,
+            time_parked=datetime.datetime(2022, 5, 29, 0, 0).timestamp(),
+            time_unparked=datetime.datetime(2022, 5, 31, 6, 30).timestamp(),
             slot_location=(2, 3, 5),
         )
     ]
