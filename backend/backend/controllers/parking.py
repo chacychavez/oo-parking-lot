@@ -97,7 +97,7 @@ def unpark():
         return Response(response="System not initialized", status=405)
 
     body = request.get_json()
-    location = body["location"]
+    plate_number = body["plate_number"]
 
     error = None
     try:
