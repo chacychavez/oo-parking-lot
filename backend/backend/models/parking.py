@@ -65,6 +65,10 @@ class ParkingSystem:
                 raise InvalidSizeError("Invalid slot size")
             self._slots[slots[i]] = Slot(slots[i], sizes[i])
 
+    def add_entry_points(self, entry_points: int, new_slots: List[Slot]) -> None:
+        # TODO: Implement adding entry points and updating slots
+        pass
+
     def get_slots(self) -> List[Slot]:
         return list(self._slots.values())
 

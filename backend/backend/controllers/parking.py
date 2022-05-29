@@ -96,6 +96,7 @@ def park():
     size = body["size"]
     entry_point = body["entry_point"]
 
+    # TODO: Move handling to Vehicle class
     if size not in {*Size}:
         return Response(response="Invalid vehicle size", status=400)
     vehicle = Vehicle(plate_number, size)
