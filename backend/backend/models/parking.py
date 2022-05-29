@@ -139,7 +139,8 @@ class ParkingSystem:
         current_start_time = logs[0].time_parked
 
         paid_charge = 0
-        for i in range(len(logs)):
+        logs_len = len(logs)
+        for i in range(logs_len):
             current_log = logs[i]
             # Use for continuous rate conditions
             prev_total_hours_consumed = total_hours_consumed
@@ -182,7 +183,8 @@ class ParkingSystem:
             )
             current_start_time = current_log.time_unparked + remaining_time
 
-            if current_log.charge is not None:
+            # Add all previous charges
+            if i < logs_len - 1:
                 paid_charge += current_log.charge
 
         return total_charge - paid_charge
