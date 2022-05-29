@@ -22,6 +22,14 @@ def runner(app):
     return app.test_cli_runner()
 
 
+def test_init_invalid_size_error(client):
+    response = client.post(
+        "/parking/init", json={"entry_points": 3, "slots": [[1, 2, 3]], "sizes": [3]}
+    )
+    assert response.status_code == 400
+    assert response.data.decode() == "Invalid slot size"
+
+
 def test_init(client):
     response = client.post(
         "/parking/init", json={"entry_points": 3, "slots": [[1, 2, 3]], "sizes": [0]}
@@ -43,6 +51,21 @@ def test_get_slots(client):
 
     data = json.loads(response.data.decode())
     assert len(data["slots"]) == 1
+
+
+def test_park_inavalid_vehicle_size(client):
+    response = client.post(
+        "parking/park",
+        json={
+            "plate_number": "ABC-123",
+            "size": 3,
+            "entry_point": 0,
+            "time_parked": [2022, 5, 29, 0, 0],
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.data.decode() == "Invalid vehicle size"
 
 
 def test_park(client):
