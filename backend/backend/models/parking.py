@@ -83,17 +83,23 @@ class ParkingSystem:
             return None
         return sorted_slots[0]
 
-    def park(self, vehicle: Vehicle, entry_point: int) -> Optional[SlotLocation]:
+    def park(
+        self, vehicle: Vehicle, entry_point: int, time_parked=None
+    ) -> Optional[SlotLocation]:
         if entry_point not in range(self._entry_points):
             raise InvalidEntryPointError("Invalid entry point.")
 
-        time_parked = time.time()
+        if time_parked is None:
+            time_parked = time.time()
         saved_vehicle = self._vehicles.get(vehicle.plate_number)
         if saved_vehicle:
             if saved_vehicle.is_parked:
                 raise AlreadyParkedError("Vehicle already parked.")
             # Check for continuous rate parking
             current_log = saved_vehicle.parking_logs[-1]
+
+            # Make sure we don't get negative difference
+            assert time_parked >= current_log.time_unparked
             if time_parked - current_log.time_unparked < self.HOURS_IN_SEC:
                 vehicle = saved_vehicle
 
@@ -114,13 +120,17 @@ class ParkingSystem:
 
         return slot.location
 
-    def unpark(self, plate_number: str) -> int:
+    def unpark(self, plate_number: str, time_unparked=None) -> int:
         vehicle = self._vehicles.get(plate_number)
         if vehicle is None or not vehicle.is_parked:
             raise VehicleNotExistsError("Vehicle not parked.")
 
-        time_unparked = time.time()
+        if time_unparked is None:
+            time_unparked = time.time()
         current_log = vehicle.parking_logs[-1]
+
+        # Make sure we don't get negative difference
+        assert time_unparked >= current_log.time_parked
         current_log.time_unparked = time_unparked
         slot = self._slots[current_log.slot_location]
 
@@ -142,6 +152,9 @@ class ParkingSystem:
         logs_len = len(logs)
         for i in range(logs_len):
             current_log = logs[i]
+            # Make sure we don't get negative difference
+            assert current_log.time_unparked >= current_log.time_parked
+
             # Use for continuous rate conditions
             prev_total_hours_consumed = total_hours_consumed
 

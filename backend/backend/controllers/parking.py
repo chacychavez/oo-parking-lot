@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 import json
 
 from flask import Blueprint, Response, request
@@ -69,9 +70,14 @@ def park():
     entry_point = body["entry_point"]
     vehicle = Vehicle(plate_number, size)
 
+    time_parked = body.get("time_parked")
+    time_parked_timestamp = None
+    if time_parked:
+        time_parked_timestamp = datetime.datetime(*time_parked).timestamp()
+
     error = None
     try:
-        location = parking_system.park(vehicle, entry_point)
+        location = parking_system.park(vehicle, entry_point, time_parked_timestamp)
     except (AlreadyParkedError, InvalidEntryPointError) as err:
         error = dict(response=err.message, status=400)
     except NoSlotAvailableError as err:
@@ -99,9 +105,14 @@ def unpark():
     body = request.get_json()
     plate_number = body["plate_number"]
 
+    time_unparked = body.get("time_unparked")
+    time_unparked_timestamp = None
+    if time_unparked:
+        time_unparked_timestamp = datetime.datetime(*time_unparked).timestamp()
+
     error = None
     try:
-        charge = parking_system.unpark(plate_number)
+        charge = parking_system.unpark(plate_number, time_unparked_timestamp)
     except VehicleNotExistsError as err:
         error = dict(response=err.message, status=400)
     except Exception as exc:
