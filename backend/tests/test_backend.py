@@ -82,7 +82,7 @@ def test_no_slot_available_error(client):
     )
 
     assert response.status_code == 503
-    assert response.data.decode() == "No slot available."
+    assert response.data.decode() == "No slots available."
 
 
 def test_invalid_entry_point_error(client):
