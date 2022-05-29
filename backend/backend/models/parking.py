@@ -12,7 +12,7 @@ from .parkingerrs import (
 )
 
 
-class SlotSize(IntEnum):
+class Size(IntEnum):
     SMALL = 0
     MEDIUM = 1
     LARGE = 2
@@ -24,16 +24,10 @@ SlotLocation = tuple
 @dataclass
 class Slot:
     location: SlotLocation
-    size: SlotSize
+    size: Size
     is_vacant: bool = True
 
     pass
-
-
-class VehicleSize(IntEnum):
-    SMALL = 0
-    MEDIUM = 1
-    LARGE = 2
 
 
 @dataclass
@@ -47,7 +41,7 @@ class ParkingLog:
 @dataclass
 class Vehicle:
     plate_number: str
-    size: VehicleSize
+    size: Size
     is_parked: bool = False
     parking_logs: List[ParkingLog] = field(default_factory=list)
 
@@ -56,7 +50,7 @@ class Vehicle:
 
 
 class ParkingSystem:
-    HOUR_RATES = {SlotSize.SMALL: 20, SlotSize.MEDIUM: 60, SlotSize.LARGE: 100}
+    HOUR_RATES = {Size.SMALL: 20, Size.MEDIUM: 60, Size.LARGE: 100}
     HOURS_IN_SEC = 60 * 60
 
     def __init__(self, entry_points: int, slots: List[tuple], sizes: List[int]):

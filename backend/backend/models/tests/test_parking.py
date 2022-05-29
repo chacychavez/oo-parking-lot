@@ -1,6 +1,6 @@
 import pytest
 
-from backend.models.parking import ParkingLog, ParkingSystem, Vehicle, VehicleSize
+from backend.models.parking import ParkingLog, ParkingSystem, Size, Vehicle
 from backend.models.parkingerrs import (
     AlreadyParkedError,
     NoSlotAvailableError,
@@ -16,7 +16,7 @@ def test_park():
     parking_system = ParkingSystem(entry_points, slots, sizes)
 
     plate_number = "ABC-123"
-    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    vehicle = Vehicle(plate_number, Size.SMALL)
     location = parking_system.park(vehicle, 0)
 
     expected_location = (0, 1, 4)
@@ -36,19 +36,19 @@ def test_park_full():
     parking_system = ParkingSystem(entry_points, slots, sizes)
 
     plate_number = "ABC-123"
-    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    vehicle = Vehicle(plate_number, Size.SMALL)
     parking_system.park(vehicle, 0)
 
     plate_number = "DEF-456"
-    vehicle = Vehicle(plate_number, VehicleSize.LARGE)
+    vehicle = Vehicle(plate_number, Size.LARGE)
     parking_system.park(vehicle, 2)
 
     plate_number = "GHI-789"
-    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    vehicle = Vehicle(plate_number, Size.SMALL)
     parking_system.park(vehicle, 1)
 
     plate_number = "JKL-012"
-    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    vehicle = Vehicle(plate_number, Size.SMALL)
     with pytest.raises(NoSlotAvailableError):
         parking_system.park(vehicle, 0)
 
@@ -57,7 +57,7 @@ def test_already_parked():
     parking_system = ParkingSystem(entry_points, slots, sizes)
 
     plate_number = "ABC-123"
-    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    vehicle = Vehicle(plate_number, Size.SMALL)
     parking_system.park(vehicle, 0)
 
     with pytest.raises(AlreadyParkedError):
@@ -68,7 +68,7 @@ def test_unpark():
     parking_system = ParkingSystem(entry_points, slots, sizes)
 
     plate_number = "ABC-123"
-    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    vehicle = Vehicle(plate_number, Size.SMALL)
     location = parking_system.park(vehicle, 0)
 
     charge = parking_system.unpark(plate_number)
@@ -96,11 +96,11 @@ def test_continuous_rate():
     parking_system = ParkingSystem(entry_points, slots, sizes)
 
     plate_number = "ABC-123"
-    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    vehicle = Vehicle(plate_number, Size.SMALL)
     parking_system.park(vehicle, 0)
     parking_system.unpark(plate_number)
 
-    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    vehicle = Vehicle(plate_number, Size.SMALL)
     parking_system.park(vehicle, 1)
 
     saved_vehicle = parking_system.get_vehicle(plate_number)
@@ -112,7 +112,7 @@ def test_not_continuous_rate():
     parking_system = ParkingSystem(entry_points, slots, sizes)
 
     plate_number = "ABC-123"
-    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    vehicle = Vehicle(plate_number, Size.SMALL)
     parking_system.park(vehicle, 0)
     parking_system.unpark(plate_number)
 
@@ -121,7 +121,7 @@ def test_not_continuous_rate():
     current_log.time_parked -= ParkingSystem.HOURS_IN_SEC
     current_log.time_unparked -= ParkingSystem.HOURS_IN_SEC
 
-    vehicle = Vehicle(plate_number, VehicleSize.SMALL)
+    vehicle = Vehicle(plate_number, Size.SMALL)
     parking_system.park(vehicle, 1)
 
     # Retrived again to make sure we get the latest saved_vehicle
