@@ -46,16 +46,50 @@ def test_get_slots(client):
 
 
 def test_park(client):
-    assert False
+    response = client.post(
+        "parking/park", json={"plate_number": "ABC-123", "size": 0, "entry_point": 0}
+    )
+
+    data = json.loads(response.data.decode())
+    assert data["location"] == [1, 2, 3]
 
 
-def test_park_error(client):
-    assert False
+def test_alread_parked_error(client):
+    response = client.post(
+        "parking/park", json={"plate_number": "ABC-123", "size": 0, "entry_point": 0}
+    )
+
+    assert response.status_code == 400
+    assert response.data.decode() == "Vehicle already parked."
+
+
+def test_no_slot_available_error(client):
+    response = client.post(
+        "parking/park", json={"plate_number": "BCD-234", "size": 0, "entry_point": 0}
+    )
+
+    assert response.status_code == 503
+    assert response.data.decode() == "No slot available."
+
+
+def test_invalid_entry_point_error(client):
+    response = client.post(
+        "parking/park", json={"plate_number": "BCD-234", "size": 1, "entry_point": 4}
+    )
+
+    assert response.status_code == 400
+    assert response.data.decode() == "Invalid entry point."
 
 
 def test_unpark(client):
-    assert False
+    response = client.post("parking/unpark", json={"plate_number": "ABC-123"})
+
+    data = json.loads(response.data.decode())
+    assert data["charge"] == 40
 
 
 def test_unpark_error(client):
-    assert False
+    response = client.post("parking/unpark", json={"plate_number": "BCD-234"})
+
+    assert response.status_code == 400
+    assert response.data.decode() == "Vehicle not parked."
