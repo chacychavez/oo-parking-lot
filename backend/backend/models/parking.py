@@ -28,8 +28,6 @@ class Slot:
     size: Size
     is_vacant: bool = True
 
-    pass
-
 
 @dataclass
 class ParkingLog:
